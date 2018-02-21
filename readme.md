@@ -1,3 +1,8 @@
+**THIS FORK SHOULD NOT BE USED FOR TESTING PURPOSES!**
+If you want to test your classifier before uploading, please use the original 
+repository (https://github.com/tano297/semcity_eval). This fork adds database 
+connections for internal usage on https://semcity.ipb.uni-bonn.de.
+
 # Semcity Evaluation API
 
 This repository includes the evaluation scripts for both Semcity challenges:
