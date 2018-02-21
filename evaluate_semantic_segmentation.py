@@ -8,6 +8,8 @@ import sys
 from PIL import Image  # for tif image
 import metrics
 import builtins
+import json
+import MySQLdb
 
 # redefine print so we can adjust verbosity
 verbose = True
@@ -177,3 +179,32 @@ if __name__ == '__main__':
   # per_class_prec = pixel-wise precision of each class [list of scalars]
   # per_class_rec = pixel-wise [list of scalars]
   # kappa = kappa coefficient for the classifier [scalar]
+
+  # convert into database writable formats
+  
+  # create database connection
+  dbuser = 'semcity';
+  dbname = 'semcity';
+  dbpasswd = '12345'; #TODO: change to actual password
+  db = MySQLdb.connect(host="127.0.0.1",user=dbuser,passwd=dbpasswd, db=dbname)
+  cur = db.cursor()
+  
+  # update tables with new results
+  cur.execute("UPDATE `classifiers` SET nsub = nsub+1, `last_update` = CURRENT_TIMESTAMP WHERE `short_name` = '"+classifier_name+"'")
+  cur.execute("SELECT * FROM result_semantic WHERE classifier_name = '"+classifier_name+"'")
+  
+  if not cur.rowcount:
+    sql_qry = "INSERT INTO result_semantic (challenge_id, classifier_name, runtime, confusion_matrix, mean_acc, mean_IoU, per_class_IoU, per_class_prec, per_class_rec, kappa) VALUES ("+challenge_id+","+classifier_name+","+runtime+","+confusion_matrix+","+mean_acc+","+mean_iou+","+per_class_iou+","+per_class_prec+","+per_class_rec+","+kappa+")"
+    try:
+      cur.execute(sql_qry)
+    except:
+      print("SQL query failed: " + sql_qry)
+      
+  else:
+    sql_qry = "UPDATE result_semantic SET runtime = " + runtime + ", confusion_matrix = " + confusion_matrix + ", mean_acc = " + mean_acc + ", mean_IoU = " + mean_iou + ", per_class_IoU = " + per_class_iou + ", per_class_prec = " + per_class_prec + ", per_class_rec = " + per_class_rec + ", kappa = " + kappa + " WHERE classifier_name = '" + classifier_name + "'"
+    try:
+      cur.execute(sql_qry)
+    except:
+      print("SQL query failed: " + sql_qry)
+      
+  db.commit()
