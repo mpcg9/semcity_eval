@@ -9,6 +9,7 @@ from PIL import Image  # for tif image
 import metrics
 import builtins
 import time
+import MySQLdb
 
 # redefine print so we can adjust verbosity
 verbose = True
@@ -55,6 +56,24 @@ if __name__ == '__main__':
       default=False,
       action='store_true',
       help='Verbose mode. Print metrics on screen. Defaults to %(default)s',
+  )
+  parser.add_argument(
+      '--classifier_name', '-n',
+      type=str,
+      required=True,
+      help='Short name of the classifier, used for database connection',
+  )
+  parser.add_argument(
+      '--runtime', '-r',
+      type=float,
+      required=True,
+      help='Runtime of the classifier, to be stored among the metrics',
+  )
+  parser.add_argument(
+      '--challenge_id', '-i',
+      type=str,
+      required=True,
+      help='Challenge ID, used for database connection',
   )
   FLAGS, unparsed = parser.parse_known_args()
 
@@ -201,3 +220,30 @@ if __name__ == '__main__':
   # AP_50_95 is a scalar containing the mean Average Precision in IoU range [0.5:0.05:0.95]
   # AP_50 is a scalar containing the Average Precision for 0.5 IoU
   # AP_75 is a scalar containing the Average Precision for 0.75 IoU (harder)
+
+    # create database connection
+  dbuser = 'semcity';
+  dbname = 'semcity';
+  dbpasswd = '12345'; #TODO: change to actual password
+  db = MySQLdb.connect(host="127.0.0.1",user=dbuser,passwd=dbpasswd, db=dbname)
+  cur = db.cursor()
+  
+  # update tables with new results
+  cur.execute("UPDATE `classifiers` SET nsub = nsub+1, `last_update` = CURRENT_TIMESTAMP WHERE `short_name` = '"+FLAGS.classifier_name+"'")
+  cur.execute("SELECT * FROM result_instance WHERE classifier_name = '"+FLAGS.classifier_name+"'")
+  
+  if not cur.rowcount:
+    sql_qry = "INSERT INTO result_instance (challenge_id, classifier_name, runtime, average_precision, average_precision_IoU50, average_precision_IoU75) VALUES ("+FLAGS.challenge_id+",'"+FLAGS.classifier_name+"',"+FLAGS.runtime+","+AP_50_95+","+AP_50+","+AP_75+")"
+    try:
+      cur.execute(sql_qry)
+    except:
+      print("SQL query failed: " + sql_qry)
+      
+  else:
+    sql_qry = "UPDATE result_semantic SET runtime = " + FLAGS.runtime + ", average_precision = " + AP_50_95 + ", average_precision_IoU50 = " + AP_50 + ", average_precision_IoU75 = " + AP_75 + " WHERE classifier_name = '" + FLAGS.classifier_name + "'"
+    try:
+      cur.execute(sql_qry)
+    except:
+      print("SQL query failed: " + sql_qry)
+      
+  db.commit()
