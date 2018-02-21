@@ -240,7 +240,7 @@ if __name__ == '__main__':
       print("SQL query failed: " + sql_qry)
       
   else:
-    sql_qry = "UPDATE result_semantic SET runtime = " + FLAGS.runtime + ", average_precision = " + AP_50_95 + ", average_precision_IoU50 = " + AP_50 + ", average_precision_IoU75 = " + AP_75 + " WHERE classifier_name = '" + FLAGS.classifier_name + "'"
+    sql_qry = "UPDATE result_instance SET runtime = " + FLAGS.runtime + ", average_precision = " + AP_50_95 + ", average_precision_IoU50 = " + AP_50 + ", average_precision_IoU75 = " + AP_75 + " WHERE classifier_name = '" + FLAGS.classifier_name + "'"
     try:
       cur.execute(sql_qry)
     except:
