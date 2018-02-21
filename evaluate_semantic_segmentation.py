@@ -194,7 +194,7 @@ if __name__ == '__main__':
   cur.execute("SELECT * FROM result_semantic WHERE classifier_name = '"+classifier_name+"'")
   
   if not cur.rowcount:
-    sql_qry = "INSERT INTO result_semantic (challenge_id, classifier_name, runtime, confusion_matrix, mean_acc, mean_IoU, per_class_IoU, per_class_prec, per_class_rec, kappa) VALUES ("+challenge_id+","+classifier_name+","+runtime+","+confusion_matrix+","+mean_acc+","+mean_iou+","+per_class_iou+","+per_class_prec+","+per_class_rec+","+kappa+")"
+    sql_qry = "INSERT INTO result_semantic (challenge_id, classifier_name, runtime, confusion_matrix, mean_acc, mean_IoU, per_class_IoU, per_class_prec, per_class_rec, kappa) VALUES ("+challenge_id+",'"+classifier_name+"',"+runtime+","+confusion_matrix+","+mean_acc+","+mean_iou+","+per_class_iou+","+per_class_prec+","+per_class_rec+","+kappa+")"
     try:
       cur.execute(sql_qry)
     except:
