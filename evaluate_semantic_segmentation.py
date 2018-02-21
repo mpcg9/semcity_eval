@@ -57,6 +57,24 @@ if __name__ == '__main__':
       action='store_true',
       help='Verbose mode. Print metrics on screen. Defaults to %(default)s',
   )
+  parser.add_argument(
+      '--classifier_name', '-n',
+      type=str,
+      required=True,
+      help='Short name of the classifier, used for database connection',
+  )
+  parser.add_argument(
+      '--runtime', '-r',
+      type=float,
+      required=True,
+      help='Runtime of the classifier, to be stored among the metrics',
+  )
+  parser.add_argument(
+      '--challenge_id', '-i',
+      type=str,
+      required=True,
+      help='Challenge ID, used for database connection',
+  )
   FLAGS, unparsed = parser.parse_known_args()
 
   # set verbosity
@@ -190,18 +208,18 @@ if __name__ == '__main__':
   cur = db.cursor()
   
   # update tables with new results
-  cur.execute("UPDATE `classifiers` SET nsub = nsub+1, `last_update` = CURRENT_TIMESTAMP WHERE `short_name` = '"+classifier_name+"'")
-  cur.execute("SELECT * FROM result_semantic WHERE classifier_name = '"+classifier_name+"'")
+  cur.execute("UPDATE `classifiers` SET nsub = nsub+1, `last_update` = CURRENT_TIMESTAMP WHERE `short_name` = '"+FLAGS.classifier_name+"'")
+  cur.execute("SELECT * FROM result_semantic WHERE classifier_name = '"+FLAGS.classifier_name+"'")
   
   if not cur.rowcount:
-    sql_qry = "INSERT INTO result_semantic (challenge_id, classifier_name, runtime, confusion_matrix, mean_acc, mean_IoU, per_class_IoU, per_class_prec, per_class_rec, kappa) VALUES ("+challenge_id+",'"+classifier_name+"',"+runtime+","+confusion_matrix+","+mean_acc+","+mean_iou+","+per_class_iou+","+per_class_prec+","+per_class_rec+","+kappa+")"
+    sql_qry = "INSERT INTO result_semantic (challenge_id, classifier_name, runtime, confusion_matrix, mean_acc, mean_IoU, per_class_IoU, per_class_prec, per_class_rec, kappa) VALUES ("+FLAGS.challenge_id+",'"+FLAGS.classifier_name+"',"+FLAGS.runtime+","+confusion_matrix+","+mean_acc+","+mean_iou+","+per_class_iou+","+per_class_prec+","+per_class_rec+","+kappa+")"
     try:
       cur.execute(sql_qry)
     except:
       print("SQL query failed: " + sql_qry)
       
   else:
-    sql_qry = "UPDATE result_semantic SET runtime = " + runtime + ", confusion_matrix = " + confusion_matrix + ", mean_acc = " + mean_acc + ", mean_IoU = " + mean_iou + ", per_class_IoU = " + per_class_iou + ", per_class_prec = " + per_class_prec + ", per_class_rec = " + per_class_rec + ", kappa = " + kappa + " WHERE classifier_name = '" + classifier_name + "'"
+    sql_qry = "UPDATE result_semantic SET runtime = " + FLAGS.runtime + ", confusion_matrix = " + confusion_matrix + ", mean_acc = " + mean_acc + ", mean_IoU = " + mean_iou + ", per_class_IoU = " + per_class_iou + ", per_class_prec = " + per_class_prec + ", per_class_rec = " + per_class_rec + ", kappa = " + kappa + " WHERE classifier_name = '" + FLAGS.classifier_name + "'"
     try:
       cur.execute(sql_qry)
     except:
