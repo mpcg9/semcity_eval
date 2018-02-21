@@ -199,6 +199,10 @@ if __name__ == '__main__':
   # kappa = kappa coefficient for the classifier [scalar]
 
   # convert into database writable formats
+  confusion_matrix = json.dumps(confusion_matrix.tolist())
+  per_class_iou = json.dumps(per_class_iou)
+  per_class_prec = json.dumps(per_class_prec)
+  per_class_rec = json.dumps(per_class_rec)
   
   # create database connection
   dbuser = 'semcity';
