@@ -16,9 +16,9 @@ def calculate_confusion(mask, lbl, num_classes):
   '''
 
   # flatten mask and cast
-  flat_mask = np.array(mask).flatten().astype(np.uint32)
+  flat_mask = np.array(mask.getdata()).flatten().astype(np.uint32)
   # flatten label and cast
-  flat_label = np.array(lbl).flatten().astype(np.uint32)
+  flat_label = np.array(lbl.getdata()).flatten().astype(np.uint32)
   # get the histogram
   histrange = np.array([[-0.5, num_classes - 0.5],
                         [-0.5, num_classes - 0.5]], dtype='float64')
